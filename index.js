@@ -2,9 +2,11 @@ const pg = require('pg');
 const client = new pg.Client(process.env.DATABASE_URL || 'postgres://localhost/acmedb');
 const express = require('express');
 const app = express();
+const path = require('path');
+console.log(__dirname);
 
 app.get('/', (req, res, next)=> {
-    res.send('hello world');
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.get('/api/flavors', async(req, res, next)=> {
