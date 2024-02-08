@@ -23,8 +23,29 @@ import { createRoot } from 'react-dom/client';
 
 let App = function App() {
   const [flavors, setFlavors] = useState([]);
+  React.useEffect(()=> {
+      const fetchFlavors = async()=> {
+          const response = await fetch('/api/flavors');
+          const json = await response.json();
+          setFlavors(json);
+      }
+      fetchFlavors();
+  }, []);
   return (
+     <div>
      <h1>My Ice Cream Flavors ({ flavors.length })</h1> 
+        <ul>
+            {
+              flavors.map((flavor)=> {
+                  return (
+                      <li key={ flavor.id }>
+                        { flavor.txt }
+                      </li>
+                  );
+              })  
+            }
+        </ul>
+     </div>
   );
 }
 
