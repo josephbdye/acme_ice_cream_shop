@@ -3,7 +3,6 @@ const client = new pg.Client(process.env.DATABASE_URL || 'postgres://localhost/a
 const express = require('express');
 const app = express();
 const path = require('path');
-console.log(__dirname);
 
 app.use(express.json());
 
@@ -53,6 +52,37 @@ app.delete('/api/flavors/:id', async(req, res, next)=> {
     }
 });
 
+app.put('/api/flavors/:id', async(req, res, next)=> {
+    try {
+        const SQL = `
+            UPDATE flavors
+            SET txt = $1
+            WHERE id = $2
+            RETURNING *
+        `;
+        const response = await client.query(SQL, [req.body.txt, req.params.id]);
+        res.send(response.rows[0]);
+    }
+    catch(ex) {
+        next(ex);
+    }
+});
+
+app.get('/api/flavors/:id', async(req, res, next)=> {
+    try {
+        const SQL = `
+           SELECT *
+           FROM flavors
+           WHERE id = $1
+        `;
+        const response = await client.query(SQL, [req.params.id]);
+        res.send(response.rows[0]);
+    }
+    catch(ex) {
+        next(ex);
+    }
+});
+
 const init = async()=> {
     
     await client.connect();
@@ -61,7 +91,7 @@ const init = async()=> {
         DROP TABLE IF EXISTS flavors;
         CREATE TABLE flavors(
             id SERIAL PRIMARY KEY,
-            txt VARCHAR(100),
+            txt VARCHAR(100) NOT NULL,
             ranking INTEGER DEFAULT 5,
             created_at TIMESTAMP DEFAULT now()
         );
