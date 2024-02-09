@@ -5,6 +5,9 @@ const app = express();
 const path = require('path');
 console.log(__dirname);
 
+app.use(express.json());
+
+
 app.get('/', (req, res, next)=> {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -19,6 +22,33 @@ app.get('/api/flavors', async(req, res, next)=> {
         res.send(response.rows);
     }
     catch(ex){
+        next(ex);
+    }
+});
+
+app.post('/api/flavors', async(req, res, next)=> {
+    try {
+        const SQL = `
+            INSERT INTO flavors(txt) VALUES($1) RETURNING *
+        `;
+        const response = await client.query(SQL, [req.body.txt]);
+        res.status(201).send(response.rows[0]);
+    }
+    catch(ex) {
+        next(ex);
+    }
+});
+
+app.delete('/api/flavors/:id', async(req, res, next)=> {
+    try {
+        const SQL = `
+            DELETE FROM flavors
+            WHERE id = $1
+        `;
+        await client.query(SQL, [req.params.id]);
+        res.sendStatus(204);
+    }
+    catch(ex) {
         next(ex);
     }
 });
